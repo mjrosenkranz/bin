@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+notify-send -t 1500 "${1}" \
+-h "string:bgcolor:$(pallet -x bg)" \
+-h "string:fgcolor:$(pallet -x fg)" \
+-h "string:frcolor:$(pallet -x primary)" \

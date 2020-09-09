@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+fonts="-f -*-unifont-*-*-*-*-17-*-*-*-*-*-*-* -f -*-siji-*-*-*-*-17-*-*-*-*-*-*-*"
+#-f -*-dina-medium-r-*-*-10-*-*-*-*-*-*-*
+fg_alt="$(pallet -x fg_alt)"
+bg_alt="$(pallet -x bg_alt)"
+fg="$(pallet -x fg)"
+bg="$(pallet -x bg)"
+fill="$(pallet -x fill1)"
+pri="$(pallet -x pri)"
+sec="$(pallet -x sec)"
+alr="$(pallet -x alert)"
+cur="$(pallet -x cursor)"
+p="15"
+
+desk() {
+		desknum="$(xprop -root | grep '_NET_CURRENT_DESKTOP(CARDINAL)' | awk -F ' = ' '{print $2}')"
+		toprint=""
+		for i in {0..5}; do
+			if [ "$i" == "$desknum" ]; then
+				#toprint+="%{B${alr}} %{F${bg}}$((i + 1)) %{F-}%{B-}"
+				toprint+="%{B${bg_alt}} %{F${fg}}$((i + 1)) %{F-}%{B-}"
+			else
+				toprint+="%{B${bg}} %{F${fg}}$((i + 1))%{F-} "
+			fi
+		done
+
+		echo -e "${toprint}"
+}
+
+_bat() {
+	bat0="$(cat /sys/class/power_supply/BAT0/capacity)"
+	bat1="$(cat /sys/class/power_supply/BAT1/capacity)"
+	stat0="$(cat /sys/class/power_supply/BAT0/status)"
+	stat1="$(cat /sys/class/power_supply/BAT1/status)"
+
+	if [[ "$stat0" == "Charging" || "$stat1" == "Charging" ]]; then
+		echo "%{B${pri}}$bat0%%{0$p}%{B${sec}}$bat1%%{B-}"
+	else 
+		#echo "%{F${fg_alt}}%{B${sec}}%{O$p}$bat0%%{O$p}%{B${pri}}%{O$p}$bat1%%{O$p}%{B-}%{F-}"
+		echo -e "%{B${sec}}%{O$p}$bat0%%{O$p}%{B${pri}}%{O$p}$bat1%%{O$p}%{B-}"
+	fi
+
+}
+
+vol() {
+	FGC="${pri}"
+	if [[ $(pamixer --get-mute) == "true" ]]; then
+		FGC="${bg}"
+	fi
+	str="%{B${bg_alt}}%{F${FGC}}%{O$p}"
+	str+="$(pamixer --get-volume)%"
+	str+="%{O$p}%{F-}%{B-}"
+	echo "${str}"
+}
+
+bright() {
+	echo "$(cat /sys/class/backlight/intel_backlight/brightness)%"
+}
+
+dt() {
+	#
+	dt="$(cat /tmp/datetime)"
+	e=""
+	eval "${dt}"
+}
+
+call() {
+
+	while true; do
+
+		str="%{r}"
+
+		str+="$(vol)"
+		str+="%{B${fill}}%{F${cur}}%{O$p}$(bright)%{O$p}%{F-}%{B-}"
+
+		str+="%{c}%{B${pri}}%{O$p}$(dt)%{O$p}%{B-}"
+
+		#str+="%{B${bg}}%{O$((p * 1))}$(desk)%{O$((p * 1))}"
+		str+="%{B${bg}}$(desk)"
+
+		str+="$(_bat)"
+
+
+		echo -n "${str}"
+		sleep 0.3
+	done
+}
+
+callsome() {
+	while true; do
+		str="%{r}"
+		str+="$(vol)"
+		str+="%{c}%{B${pri}}%{O$p}$(dt)%{O$p}%{B-}"
+		str+="%{B${bg}}$(desk)%{B-}"
+		echo -n "${str}"
+		sleep 0.3
+	done
+}
+
+pkill lemonbar
+
+#echo "0 date '+%I:%M'" > /tmp/datetime
+echo "date '+%I:%M'" > /tmp/datetime
+
+call | lemonbar -g 1920x30 ${fonts} -F ${bg} -B "#00000000" &
+
