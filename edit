@@ -1,6 +1,5 @@
 #!/bin/bash
-
-[ -z $1 ] && {
+[ -z "$1" ] && {
 		echo "no file specified"
 		exit 1
 }
@@ -11,9 +10,9 @@
 
 # how many frames are there
 nf="$(emacsclient -e '(length (visible-frame-list))')"
-[ $nf -eq "1" ] && {
+[ "$nf" -eq "1" ] && {
 		echo "need more frame"
-		emacsclient -c &
+		emacsclient -c -n
 }
 
 emacsclient -e "(find-file \"$1\")"
