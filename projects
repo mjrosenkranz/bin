@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+PROJ_DIR="${PROJ_DIR:-$HOME/docs/code}"
+
+main() {
+	echo "searching the projects directory: $PROJ_DIR"
+	proj="$(echo $PROJ_DIR/* | xargs -n 1 basename | fzy -p 'open project: ')"
+
+	[ $(tmux_has_project $proj) ] && {
+		tmux attach -t "$proj"
+  } || {
+		tmux new -s "$proj" -c "$PROJ_DIR/$proj"
+  }
+}
+
+tmux_has_project() {
+	proj="${1}"
+	tmux ls | awk -F: -v p=$proj '$1 == p {print $1}'
+}
+
+
+main $@
