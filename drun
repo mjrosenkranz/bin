@@ -1,7 +1,9 @@
 #!/bin/bash
-vars="-i -x 560 -y 405 -w 800 -l 15 \
--nb "$(pallet -x bg)" -nf "$(pallet -x fg)" \
--sb "$(pallet -x secondary)" -sf "$(pallet -x bg)""
+#vars="-i -x 560 -y 405 -w 800 -l 15" 
+vars="-nb $(pallet -x bg) -nf $(pallet -x fg)"
+vars+=" -sb $(pallet -x secondary) -sf $(pallet -x bg)"
+
+echo "$vars"
 
 if [[ "$1" == "-m" ]]; then
 	dmenu $vars < /dev/stdin

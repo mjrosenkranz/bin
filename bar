@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-fonts="-f -*-unifont-*-*-*-*-17-*-*-*-*-*-*-* -f -*-siji-*-*-*-*-17-*-*-*-*-*-*-*"
+fonts="-f -*-unifont-*-*-*-*-17-*-*-*-*-*-*-*" # -f -*-siji-*-*-*-*-17-*-*-*-*-*-*-*"
 
 desk() {
 		desknum="$(xprop -root | grep '_NET_CURRENT_DESKTOP(CARDINAL)' | awk -F ' = ' '{print $2}')"
@@ -54,15 +54,23 @@ bri() {
   echo "bri: $(brightness)%"
 }
 
-call() {
-
+all() {
 	while true; do
 
 		str="%{l}%{O15}$(desk)"
-		str+="%{c}$(_bat 0)%{O50}$(dt)%{O50}$(_bat 1)"
-		str+="%{r}$(vol)%{O10}$(bri)%{O15}"
+		#str+="%{c}$(_bat 0)%{O50}$(dt)%{O50}$(_bat 1)"
+		str+="%{c}%{O50}$(dt)%{O50}"
+		str+="%{r}$(vol) %{O10} $(bri) %{O15}"
 
-		echo -n "${str}"
+		echo "${str}"
+		sleep 0.3
+	done
+}
+
+small() {
+	while true; do
+		str="%{c}$(desk)%{O15}$(dt)"
+		echo "${str}"
 		sleep 0.3
 	done
 }
@@ -72,4 +80,5 @@ pkill lemonbar
 
 echo 'date +%I:%M' > /tmp/datetime
 
-call | lemonbar -g 1920x25 ${fonts} -F "$(pallet -x fg)" -B "$(pallet -x block)" -U "#ffffff" &
+#all | lemonbar -g 1920x25 -F "$(pallet -x fg)" -B "$(pallet -x block)" -U "#ffffff" &
+small | lemonbar -g 200x20+860 -F "$(pallet -x fg)" -B "$(pallet -x bg)" -U "$(pallet -x sec)"
